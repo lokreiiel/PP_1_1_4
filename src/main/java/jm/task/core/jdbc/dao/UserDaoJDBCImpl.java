@@ -18,34 +18,30 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
 
-        String CREATE_TABLE = "create table if not exists users" +
-                "(" +
-                "    id  bigint auto_increment" +
-                "        primary key," +
-                "    name     varchar(45) not null," +
-                "    lastName varchar(45) not null," +
-                "    age      tinyint     not null" +
-                ");";
-        try {
-            Statement statement = connection.createStatement();
-            statement.execute(CREATE_TABLE);
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE IF NOT EXISTS users" +
+                    "(" +
+                    "    id  BIGINT AUTO_INCREMENT" +
+                    "        PRIMARY KEY," +
+                    "    name     VARCHAR(45) NOT NULL," +
+                    "    last_name VARCHAR(45) NOT NULL," +
+                    "    age      TINYINT     NOT NULL" +
+                    ");");
         } catch (SQLException e) {
             throw new RuntimeException("Не удалось создать таблицу");
         }
     }
 
     public void dropUsersTable() {
-        String DROP_TABLE = "DROP TABLE IF EXISTS users";
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(DROP_TABLE);
+            statement.executeUpdate("DROP TABLE IF EXISTS users");
         } catch (SQLException e) {
             throw new RuntimeException("Не удалось удалить таблицу");
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        String INSERT = "INSERT INTO users (name, lastname, age) VALUES (?, ?, ?)";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (name, last_name, age) VALUES (?, ?, ?)")) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
@@ -57,8 +53,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        String DELETE = "DELETE FROM users WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = ?")) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
             System.out.println("User c id = " + id + " удален");
@@ -70,13 +65,13 @@ public class UserDaoJDBCImpl implements UserDao {
     public List<User> getAllUsers() {
         List<User> arrayList = new ArrayList<>();
         User user = new User();
-        String GET_ALL = "SELECT * FROM users";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(GET_ALL)) {
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("SELECT * FROM users")) {
             while (resultSet.next()) {
 
                 user.setId(resultSet.getLong("id"));
                 user.setName(resultSet.getString("name"));
-                user.setLastName(resultSet.getString("lastName"));
+                user.setLastName(resultSet.getString("last_name"));
                 user.setAge(resultSet.getByte("age"));
                 arrayList.add(user);
                 System.out.println(user);
@@ -88,10 +83,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        PreparedStatement preparedStatement;
-        String DELETE_ALL = "TRUNCATE TABLE users";
-        try {
-            preparedStatement = connection.prepareStatement(DELETE_ALL);
+        try (PreparedStatement preparedStatement = connection.prepareStatement("TRUNCATE TABLE users")) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Не удалось очистить таблицу");
