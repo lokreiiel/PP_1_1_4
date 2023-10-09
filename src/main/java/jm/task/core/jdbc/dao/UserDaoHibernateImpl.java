@@ -30,7 +30,7 @@ public class UserDaoHibernateImpl implements UserDao {
                     "    id  bigint auto_increment" +
                     "        primary key not null," +
                     "    name     varchar(45) not null," +
-                    "    lastName varchar(45) not null," +
+                    "    last_name varchar(45) not null," +
                     "    age      tinyint     " +
                     ");").executeUpdate();
             session.getTransaction().commit();
@@ -64,7 +64,6 @@ public class UserDaoHibernateImpl implements UserDao {
             session.getTransaction().commit();
             System.out.println("User с именем – " + name + " добавлен в базу данных");
         } catch (Exception e) {
-            e.printStackTrace();
             System.err.println("no3");
             if (transaction != null) {
                 transaction.rollback();
